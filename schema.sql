@@ -106,3 +106,17 @@ CREATE POLICY "Allow Public Access Contacts" ON public.contacts
 -- Grant Table Permissions
 GRANT ALL ON public.vcfs TO postgres, anon, authenticated, service_role;
 GRANT ALL ON public.contacts TO postgres, anon, authenticated, service_role;
+
+-- 7. System Configuration Table for WhatsApp Group Link & Admin Settings
+CREATE TABLE IF NOT EXISTS public.system_config (
+    id TEXT PRIMARY KEY DEFAULT 'default',
+    group_url TEXT,
+    admin_name TEXT,
+    admin_phone TEXT,
+    admin_phone2 TEXT,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Grant permissions on system_config
+GRANT ALL ON public.system_config TO postgres, anon, authenticated, service_role;
+

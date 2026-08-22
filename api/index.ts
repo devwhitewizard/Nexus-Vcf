@@ -137,10 +137,10 @@ const DEFAULT_WHATSAPP_GROUP = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQw
 function sanitizeGroupUrl(url?: string): string {
     if (!url || !url.trim()) return DEFAULT_WHATSAPP_GROUP;
     let trimmed = url.trim();
-    if (trimmed.includes('vercel.app')) return DEFAULT_WHATSAPP_GROUP;
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
         trimmed = `https://${trimmed}`;
     }
+    if (trimmed.includes('vercel.app')) return DEFAULT_WHATSAPP_GROUP;
     return trimmed;
 }
 
@@ -153,39 +153,106 @@ let siteConfig = {
     adminWhatsapp2: process.env.PUBLIC_ADMIN_WHATSAPP2 || 'https://wa.me/254794171080',
 };
 
-app.get(['/api/config', '/config'], (req: Request, res: Response) => {
+async function fetchSystemConfigDB() {
+    try {
+        const supabase = getSupabaseServer();
+        const { data, error } = await supabase
+            .from('system_config')
+            .select('*')
+            .eq('id', 'default')
+            .maybeSingle();
+
+        if (!error && data) {
+            const clean1 = (data.admin_phone || siteConfig.adminPhone).replace(/[^0-9]/g, '');
+            const clean2 = (data.admin_phone2 || siteConfig.adminPhone2).replace(/[^0-9]/g, '');
+
+            siteConfig = {
+                groupUrl: sanitizeGroupUrl(data.group_url || siteConfig.groupUrl),
+                adminName: data.admin_name || siteConfig.adminName,
+                adminPhone: data.admin_phone || siteConfig.adminPhone,
+                adminPhone2: data.admin_phone2 || siteConfig.adminPhone2,
+                adminWhatsapp: clean1 ? `https://wa.me/${clean1}` : siteConfig.adminWhatsapp,
+                adminWhatsapp2: clean2 ? `https://wa.me/${clean2}` : siteConfig.adminWhatsapp2,
+            };
+        }
+    } catch (_) {}
+    return siteConfig;
+}
+
+async function updateSystemConfigDB(updates: {
+    groupUrl?: string;
+    adminName?: string;
+    adminPhone?: string;
+    adminPhone2?: string;
+}) {
+    const current = await fetchSystemConfigDB();
+
+    const newGroupUrl = updates.groupUrl !== undefined && updates.groupUrl.trim()
+        ? sanitizeGroupUrl(updates.groupUrl)
+        : current.groupUrl;
+    const newAdminName = updates.adminName !== undefined && updates.adminName.trim()
+        ? updates.adminName.trim()
+        : current.adminName;
+    const newAdminPhone = updates.adminPhone !== undefined && updates.adminPhone.trim()
+        ? updates.adminPhone.trim()
+        : current.adminPhone;
+    const newAdminPhone2 = updates.adminPhone2 !== undefined && updates.adminPhone2.trim()
+        ? updates.adminPhone2.trim()
+        : current.adminPhone2;
+
+    const clean1 = newAdminPhone.replace(/[^0-9]/g, '');
+    const clean2 = newAdminPhone2.replace(/[^0-9]/g, '');
+
+    siteConfig = {
+        groupUrl: newGroupUrl,
+        adminName: newAdminName,
+        adminPhone: newAdminPhone,
+        adminPhone2: newAdminPhone2,
+        adminWhatsapp: clean1 ? `https://wa.me/${clean1}` : siteConfig.adminWhatsapp,
+        adminWhatsapp2: clean2 ? `https://wa.me/${clean2}` : siteConfig.adminWhatsapp2,
+    };
+
+    try {
+        const supabase = getSupabaseServer();
+        await supabase.from('system_config').upsert({
+            id: 'default',
+            group_url: newGroupUrl,
+            admin_name: newAdminName,
+            admin_phone: newAdminPhone,
+            admin_phone2: newAdminPhone2,
+            updated_at: new Date().toISOString(),
+        });
+    } catch (err) {
+        console.error('Failed to persist config to Supabase system_config:', err);
+    }
+
+    return siteConfig;
+}
+
+app.get(['/api/config', '/config'], async (req: Request, res: Response) => {
+    const config = await fetchSystemConfigDB();
     res.json({
         success: true,
-        ...siteConfig,
-        groupUrl: sanitizeGroupUrl(siteConfig.groupUrl),
+        ...config,
+        groupUrl: sanitizeGroupUrl(config.groupUrl),
     });
 });
 
-app.put(['/api/admin/config', '/admin/config'], requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+app.put(['/api/admin/config', '/admin/config'], requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { groupUrl, adminName, adminPhone, adminPhone2 } = req.body;
 
-        if (groupUrl !== undefined && groupUrl.trim()) {
-            siteConfig.groupUrl = groupUrl.trim();
-        }
-        if (adminName !== undefined && adminName.trim()) {
-            siteConfig.adminName = adminName.trim();
-        }
-        if (adminPhone !== undefined && adminPhone.trim()) {
-            siteConfig.adminPhone = adminPhone.trim();
-            const clean1 = adminPhone.replace(/[^0-9]/g, '');
-            siteConfig.adminWhatsapp = `https://wa.me/${clean1}`;
-        }
-        if (adminPhone2 !== undefined && adminPhone2.trim()) {
-            siteConfig.adminPhone2 = adminPhone2.trim();
-            const clean2 = adminPhone2.replace(/[^0-9]/g, '');
-            siteConfig.adminWhatsapp2 = `https://wa.me/${clean2}`;
-        }
+        const updatedConfig = await updateSystemConfigDB({
+            groupUrl,
+            adminName,
+            adminPhone,
+            adminPhone2,
+        });
 
         res.json({
             success: true,
-            message: 'System configuration updated successfully.',
-            config: siteConfig,
+            message: 'System configuration updated and saved successfully.',
+            config: updatedConfig,
         });
     } catch (err) {
         res.status(500).json({ success: false, error: 'Failed to update system configuration.' });
