@@ -19,7 +19,7 @@ export const Home: React.FC = () => {
   });
 
   const [config, setConfig] = useState<PublicConfig>({
-    groupUrl: 'https://chat.whatsapp.com/Jk88X19Kls92K109s8',
+    groupUrl: 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0',
     adminName: 'Nexus Support Team',
     adminPhone: '+254707848992',
     adminPhone2: '+254794171080',

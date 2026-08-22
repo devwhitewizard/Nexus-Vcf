@@ -50,7 +50,7 @@ export async function fetchPublicConfig(): Promise<PublicConfig> {
     console.error('Failed to fetch public config:', err);
   }
   return {
-    groupUrl: 'https://chat.whatsapp.com/Jk88X19Kls92K109s8',
+    groupUrl: 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0',
     adminName: 'Nexus Support Team',
     adminPhone: '+254707848992',
     adminPhone2: '+254794171080',

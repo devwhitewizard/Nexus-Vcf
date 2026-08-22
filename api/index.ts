@@ -133,7 +133,7 @@ async function fetchAllContactsDB() {
 // -------------------------------------------------------------------
 
 let siteConfig = {
-    groupUrl: process.env.PUBLIC_GROUP_URL || 'https://chat.whatsapp.com/Jk88X19Kls92K109s8',
+    groupUrl: process.env.PUBLIC_GROUP_URL || 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0',
     adminName: process.env.PUBLIC_ADMIN_NAME || 'Nexus Support Team',
     adminPhone: process.env.PUBLIC_ADMIN_PHONE || '+254707848992',
     adminPhone2: process.env.PUBLIC_ADMIN_PHONE2 || '+254794171080',
