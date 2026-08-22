@@ -986,7 +986,10 @@ app.post('/api/admin/upload-image', requireAdminAuth, async (req: AuthenticatedR
   }
 });
 
-// Start Express Server
-app.listen(PORT, () => {
-  console.log(`⚡ Nexus VCF Backend API Server running on port ${PORT}`);
-});
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`⚡ Nexus VCF Backend API Server running on port ${PORT}`);
+  });
+}
