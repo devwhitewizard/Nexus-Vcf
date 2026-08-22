@@ -1,5 +1,5 @@
 import { parsePhoneNumberFromString, CountryCode as LibCountryCode } from 'libphonenumber-js';
-import { COUNTRIES, DEFAULT_COUNTRY } from './countries';
+import { COUNTRIES, DEFAULT_COUNTRY } from './countries.js';
 
 export interface PhoneValidationResult {
   isValid: boolean;

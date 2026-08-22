@@ -1,4 +1,4 @@
-import { Country } from '../types';
+import type { Country } from '../types/index.js';
 
 export const COUNTRIES: Country[] = [
   { name: 'Kenya', code: 'KE', dialCode: '+254', flag: '🇰🇪', formatPlaceholder: '712 345 678' },
