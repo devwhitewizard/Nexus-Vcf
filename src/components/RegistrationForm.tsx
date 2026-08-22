@@ -93,10 +93,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess, o
   };
 
   return (
-    <div id="register" className="w-full max-w-xl mx-auto glass-panel rounded-3xl p-6 sm:p-8 shadow-card-glow relative overflow-hidden">
+    <div id="register" className="w-full max-w-xl mx-auto glass-panel rounded-3xl p-6 sm:p-8 shadow-card-glow relative overflow-hidden border border-sky-100">
       {/* Decorative Glow Elements */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-sky-100/50 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Form Header */}
       <div className="flex items-center gap-3 mb-6">

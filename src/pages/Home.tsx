@@ -54,7 +54,7 @@ export const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cmd-dark text-slate-100 flex flex-col selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
@@ -96,7 +96,7 @@ export const Home: React.FC = () => {
       />
 
       {/* Footer */}
-      <footer className="mt-16 border-t border-purple-500/20 bg-gradient-to-b from-cmd-dark/80 to-cmd-dark">
+      <footer className="mt-16 border-t border-slate-200 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
 
           {/* Brand Row */}
@@ -104,12 +104,12 @@ export const Home: React.FC = () => {
 
             {/* Logo + Brand */}
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center font-black text-white text-sm shadow-purple-glow shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center font-black text-white text-sm shadow-cyan-glow shrink-0">
                 N
               </div>
               <div className="text-left">
-                <p className="font-bold text-white text-sm leading-none">Nexus VCF Platform</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">Official Contact Directory System</p>
+                <p className="font-bold text-slate-800 text-sm leading-none">Nexus VCF Platform</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Official Contact Directory System</p>
               </div>
             </div>
 
@@ -117,25 +117,25 @@ export const Home: React.FC = () => {
             <nav className="flex items-center gap-1 flex-wrap justify-center">
               <a
                 href="#register"
-                className="px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-purple-900/40 transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-sky-700 hover:bg-sky-50 font-medium transition-all"
               >
                 Register
               </a>
               <a
                 href="#group-join"
-                className="px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-purple-900/40 transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-sky-700 hover:bg-sky-50 font-medium transition-all"
               >
                 Group Join
               </a>
               <a
                 href="#admin-contact"
-                className="px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-purple-900/40 transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-sky-700 hover:bg-sky-50 font-medium transition-all"
               >
                 Support
               </a>
               <a
                 href="/admin"
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-purple-300 border border-purple-500/30 hover:bg-purple-900/50 hover:border-purple-400 hover:text-white transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-700 border border-sky-200 hover:bg-sky-50 hover:border-sky-400 transition-all"
               >
                 Admin Panel ↗
               </a>
@@ -143,10 +143,10 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-sky-200 to-transparent" />
 
           {/* Bottom Copyright */}
-          <p className="text-center text-[11px] text-gray-600">
+          <p className="text-center text-[11px] text-slate-400 font-medium">
             © {new Date().getFullYear()} Nexus VCF Platform · All Rights Reserved · Built with ♥ for the community
           </p>
 

@@ -292,15 +292,57 @@ const handleRegister = async (req: Request, res: Response): Promise<void> => {
         const supabase = getSupabaseServer();
 
         const allVcfs = await fetchAllVcfsDB();
-        const activeVcfs = allVcfs.filter((v) => v.status === 'ACTIVE' && v.remaining_capacity > 0);
+        let activeVcfs = allVcfs.filter((v) => v.status === 'ACTIVE' && v.remaining_capacity > 0);
 
         if (activeVcfs.length === 0) {
-            res.status(422).json({
-                success: false,
-                error: 'All VCF containers are currently FULL. Registration is temporarily closed until a new VCF is created by the admin.',
-                noAvailableVcf: true,
-            });
-            return;
+            // ──────────────────────────────────────────────────────────────
+            // AUTOMATIC VCF CONTAINER ROLLOVER
+            // When all active VCF containers are full, automatically create
+            // the next sequential container (VCF 002, VCF 003, etc.) and
+            // route new registrations into it seamlessly.
+            // ──────────────────────────────────────────────────────────────
+            const existingNums = allVcfs
+                .map((v) => { const m = v.name.match(/\d+/); return m ? parseInt(m[0], 10) : 0; })
+                .filter((n) => !isNaN(n));
+
+            const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : allVcfs.length + 1;
+            const nextName = `VCF ${String(nextNum).padStart(3, '0')}`;
+
+            let { data: newVcf, error: vcfErr } = await supabase
+                .from('vcfs')
+                .insert({
+                    name: nextName,
+                    capacity: 500,
+                    description: 'Automatic rollover container',
+                    name_prefix: '🩸🩸 ',
+                    status: 'ACTIVE',
+                    created_at: new Date().toISOString(),
+                    created_by: 'System Auto-Rollover',
+                })
+                .select()
+                .single();
+
+            // Fallback if name_prefix column doesn't exist yet in DB schema
+            if (vcfErr && (vcfErr.message?.includes('name_prefix') || vcfErr.message?.includes('schema cache') || vcfErr.message?.includes('column'))) {
+                const retry = await supabase.from('vcfs').insert({
+                    name: nextName, capacity: 500, description: 'Automatic rollover container',
+                    status: 'ACTIVE', created_at: new Date().toISOString(), created_by: 'System Auto-Rollover',
+                }).select().single();
+                newVcf = retry.data;
+                vcfErr = retry.error;
+            }
+
+            if (!newVcf || vcfErr) {
+                res.status(422).json({
+                    success: false,
+                    error: 'All VCF containers are currently FULL and automatic container creation failed. Please contact admin.',
+                    noAvailableVcf: true,
+                });
+                return;
+            }
+
+            const computedNew = await getVcfWithComputedStats(newVcf);
+            activeVcfs = [computedNew];
         }
 
         const targetVcf = activeVcfs[0];
@@ -509,34 +551,15 @@ app.post(['/api/admin/vcfs', '/admin/vcfs'], requireAdminAuth, async (req: Authe
             created_by: 'Admin',
         };
 
-        let { data, error } = await supabase
+        const { data, error } = await supabase
             .from('vcfs')
             .insert(newVcf)
             .select()
             .single();
 
-        if (error && (error.message?.includes('name_prefix') || error.message?.includes('schema cache') || error.message?.includes('column'))) {
-            const fallbackVcf = {
-                name: name.trim(),
-                capacity: capNum,
-                image_url: imageUrl ? imageUrl.trim() : null,
-                description: description ? description.trim() : null,
-                status: 'ACTIVE',
-                created_at: new Date().toISOString(),
-                created_by: 'Admin',
-            };
-            const retryRes = await supabase.from('vcfs').insert(fallbackVcf).select().single();
-            data = retryRes.data;
-            error = retryRes.error;
-            if (data) {
-                data.name_prefix = namePrefix !== undefined ? namePrefix : '🩸🩸 ';
-                data.name_suffix = nameSuffix !== undefined ? nameSuffix : null;
-            }
-        }
-
-        if (error || !data) {
+        if (error) {
             console.error('[Supabase Create VCF Error]:', error);
-            res.status(500).json({ success: false, error: `Failed to create VCF: ${error?.message || 'Database error'}` });
+            res.status(500).json({ success: false, error: `Failed to create VCF: ${error.message}` });
             return;
         }
 
@@ -642,32 +665,15 @@ app.put(['/api/admin/vcfs/:id', '/admin/vcfs/:id'], requireAdminAuth, async (req
             status: targetStatus,
         };
 
-        let { data: updated, error } = await supabase
+        const { data: updated, error } = await supabase
             .from('vcfs')
             .update(updates)
             .eq('id', id)
             .select()
             .single();
 
-        if (error && (error.message?.includes('name_prefix') || error.message?.includes('schema cache') || error.message?.includes('column'))) {
-            const fallbackUpdates = {
-                name: name !== undefined ? name.trim() : existingVcf.name,
-                capacity: newCap,
-                image_url: imageUrl !== undefined ? imageUrl : existingVcf.image_url,
-                description: description !== undefined ? description : existingVcf.description,
-                status: targetStatus,
-            };
-            const retryRes = await supabase.from('vcfs').update(fallbackUpdates).eq('id', id).select().single();
-            updated = retryRes.data;
-            error = retryRes.error;
-            if (updated) {
-                updated.name_prefix = namePrefix !== undefined ? namePrefix : existingVcf.name_prefix;
-                updated.name_suffix = nameSuffix !== undefined ? nameSuffix : existingVcf.name_suffix;
-            }
-        }
-
-        if (error || !updated) {
-            res.status(500).json({ success: false, error: `Failed to update VCF: ${error?.message || 'Database error'}` });
+        if (error) {
+            res.status(500).json({ success: false, error: `Failed to update VCF: ${error.message}` });
             return;
         }
 
