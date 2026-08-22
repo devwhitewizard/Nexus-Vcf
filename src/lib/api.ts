@@ -32,13 +32,25 @@ export async function fetchDirectoryStatus(): Promise<DirectoryStatusData> {
   };
 }
 
+const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0';
+
+function sanitizeGroupUrl(rawUrl?: string): string {
+  if (!rawUrl || !rawUrl.trim()) return DEFAULT_GROUP_URL;
+  let trimmed = rawUrl.trim();
+  if (trimmed.includes('vercel.app')) return DEFAULT_GROUP_URL;
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    trimmed = `https://${trimmed}`;
+  }
+  return trimmed;
+}
+
 export async function fetchPublicConfig(): Promise<PublicConfig> {
   try {
     const res = await fetch(`${API_BASE}/config`);
     const data = await res.json();
     if (data.success) {
       return {
-        groupUrl: data.groupUrl,
+        groupUrl: sanitizeGroupUrl(data.groupUrl),
         adminName: data.adminName || 'Nexus Support Team',
         adminPhone: data.adminPhone || '+254707848992',
         adminPhone2: data.adminPhone2 || '+254794171080',
@@ -50,7 +62,7 @@ export async function fetchPublicConfig(): Promise<PublicConfig> {
     console.error('Failed to fetch public config:', err);
   }
   return {
-    groupUrl: 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0',
+    groupUrl: DEFAULT_GROUP_URL,
     adminName: 'Nexus Support Team',
     adminPhone: '+254707848992',
     adminPhone2: '+254794171080',

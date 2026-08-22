@@ -6,7 +6,21 @@ interface GroupJoinCardProps {
   groupUrl: string;
 }
 
+const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0';
+
 export const GroupJoinCard: React.FC<GroupJoinCardProps> = ({ groupUrl }) => {
+  const getFormattedUrl = (rawUrl?: string): string => {
+    if (!rawUrl || !rawUrl.trim()) return DEFAULT_GROUP_URL;
+    let trimmed = rawUrl.trim();
+    if (trimmed.includes('vercel.app')) return DEFAULT_GROUP_URL;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      trimmed = `https://${trimmed}`;
+    }
+    return trimmed;
+  };
+
+  const finalUrl = getFormattedUrl(groupUrl);
+
   return (
     <div id="group-join" className="w-full max-w-4xl mx-auto my-10">
       <div className="relative glass-panel rounded-3xl p-6 sm:p-8 border border-emerald-100 overflow-hidden shadow-emerald-glow">
@@ -46,7 +60,7 @@ export const GroupJoinCard: React.FC<GroupJoinCardProps> = ({ groupUrl }) => {
             
             {/* Main Join Group Button */}
             <a
-              href={groupUrl}
+              href={finalUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 px-6 py-3.5 rounded-xl btn-emerald font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg group hover:scale-[1.01] transition-transform"

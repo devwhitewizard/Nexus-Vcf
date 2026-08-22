@@ -132,8 +132,20 @@ async function fetchAllContactsDB() {
 // PUBLIC ENDPOINTS
 // -------------------------------------------------------------------
 
+const DEFAULT_WHATSAPP_GROUP = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0';
+
+function sanitizeGroupUrl(url?: string): string {
+    if (!url || !url.trim()) return DEFAULT_WHATSAPP_GROUP;
+    let trimmed = url.trim();
+    if (trimmed.includes('vercel.app')) return DEFAULT_WHATSAPP_GROUP;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+        trimmed = `https://${trimmed}`;
+    }
+    return trimmed;
+}
+
 let siteConfig = {
-    groupUrl: process.env.PUBLIC_GROUP_URL || 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0',
+    groupUrl: sanitizeGroupUrl(process.env.PUBLIC_GROUP_URL),
     adminName: process.env.PUBLIC_ADMIN_NAME || 'Nexus Support Team',
     adminPhone: process.env.PUBLIC_ADMIN_PHONE || '+254707848992',
     adminPhone2: process.env.PUBLIC_ADMIN_PHONE2 || '+254794171080',
@@ -145,6 +157,7 @@ app.get(['/api/config', '/config'], (req: Request, res: Response) => {
     res.json({
         success: true,
         ...siteConfig,
+        groupUrl: sanitizeGroupUrl(siteConfig.groupUrl),
     });
 });
 
