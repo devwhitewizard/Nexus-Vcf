@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
-dotenv.config();
+try {
+  dotenv.config();
+} catch (_) {}
 
 function getSessionSecret(): string {
   return process.env.SESSION_SECRET || 'fallback_session_secret_nexus_2026';

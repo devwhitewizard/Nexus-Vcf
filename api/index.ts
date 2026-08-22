@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import PDFDocument from 'pdfkit';
 import { getSupabaseServer } from '../src/lib/supabaseServer';
 import {
   verifyAdminPassword,
@@ -12,7 +11,9 @@ import {
 } from '../src/lib/adminAuth';
 import { normalizePhoneNumber, maskPhoneNumber, validateRegistrationInput } from '../src/lib/validation';
 
-dotenv.config();
+try {
+  dotenv.config();
+} catch (_) {}
 
 const app = express();
 

@@ -1,14 +1,15 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
 
-dotenv.config();
+let cachedClient: SupabaseClient | null = null;
 
 /**
- * Returns an authenticated Supabase server client configured with credentials
- * dynamically re-reading process.env to ensure updated .env credentials apply immediately.
+ * Returns an authenticated Supabase server client configured with credentials.
+ * Uses singleton caching for high performance in serverless functions.
  */
 export function getSupabaseServer(): SupabaseClient {
-  dotenv.config(); // Reload env vars if changed
+  if (cachedClient) {
+    return cachedClient;
+  }
 
   const supabaseUrl = (
     process.env.SUPABASE_URL ||
@@ -20,13 +21,15 @@ export function getSupabaseServer(): SupabaseClient {
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
     process.env.SUPABASE_KEY ||
-    'placeholder-key'
+    ''
   ).trim();
 
-  return createClient(supabaseUrl, supabaseKey, {
+  cachedClient = createClient(supabaseUrl, supabaseKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
     },
   });
+
+  return cachedClient;
 }
