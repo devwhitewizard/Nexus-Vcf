@@ -432,28 +432,38 @@ app.post('/api/upload', handleRegister);
 // ADMIN ENDPOINTS (AUTH & VCF CONTAINER MANAGEMENT)
 // -------------------------------------------------------------------
 
-app.post('/api/admin/login', (req: Request, res: Response): void => {
-  const { password } = req.body;
+app.post(['/api/admin/login', '/admin/login'], (req: Request, res: Response): void => {
+  try {
+    const { password } = req.body || {};
 
-  if (!verifyAdminPassword(password)) {
-    res.status(401).json({ success: false, error: 'Invalid admin password.' });
-    return;
+    if (!password) {
+      res.status(400).json({ success: false, error: 'Please enter the admin password.' });
+      return;
+    }
+
+    if (!verifyAdminPassword(password)) {
+      res.status(401).json({ success: false, error: 'Invalid admin password.' });
+      return;
+    }
+
+    const token = generateAdminSessionToken();
+
+    res.cookie('nexus_admin_session', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      success: true,
+      token,
+      message: 'Admin authentication successful.',
+    });
+  } catch (err: any) {
+    console.error('Login Endpoint Exception:', err);
+    res.status(500).json({ success: false, error: `Login error: ${err?.message || 'Server error'}` });
   }
-
-  const token = generateAdminSessionToken();
-
-  res.cookie('nexus_admin_session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000,
-  });
-
-  res.json({
-    success: true,
-    token,
-    message: 'Admin authentication successful.',
-  });
 });
 
 app.post('/api/admin/logout', (req: Request, res: Response) => {

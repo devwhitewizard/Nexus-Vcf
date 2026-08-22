@@ -140,13 +140,20 @@ export async function adminLogin(password: string): Promise<{ success: boolean; 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     });
-    const data = await res.json();
+
+    const data = await res.json().catch(() => null);
+
+    if (!data) {
+      return { success: false, error: `Server error (HTTP ${res.status}). Please check Vercel logs.` };
+    }
+
     if (data.success && data.token) {
       localStorage.setItem('nexus_admin_token', data.token);
     }
     return data;
-  } catch (err) {
-    return { success: false, error: 'Network error during login.' };
+  } catch (err: any) {
+    console.error('adminLogin error:', err);
+    return { success: false, error: 'Network error connecting to backend API.' };
   }
 }
 
