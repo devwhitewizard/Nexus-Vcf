@@ -2,14 +2,14 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { getSupabaseServer } from '../src/lib/supabaseServer.js';
+import { getSupabaseServer } from '../src/lib/supabaseServer';
 import {
   verifyAdminPassword,
   generateAdminSessionToken,
   requireAdminAuth,
   AuthenticatedRequest,
-} from '../src/lib/adminAuth.js';
-import { normalizePhoneNumber, maskPhoneNumber, validateRegistrationInput } from '../src/lib/validation.js';
+} from '../src/lib/adminAuth';
+import { normalizePhoneNumber, maskPhoneNumber, validateRegistrationInput } from '../src/lib/validation';
 
 try {
   dotenv.config();
