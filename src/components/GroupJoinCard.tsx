@@ -6,7 +6,7 @@ interface GroupJoinCardProps {
   groupUrl: string;
 }
 
-const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0';
+const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt';
 
 export const GroupJoinCard: React.FC<GroupJoinCardProps> = ({ groupUrl }) => {
   const getFormattedUrl = (rawUrl?: string): string => {

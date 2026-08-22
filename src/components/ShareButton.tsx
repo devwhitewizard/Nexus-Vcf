@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, MessageCircle } from 'lucide-react';
 
-const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0';
+const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt';
 
 interface ShareButtonProps {
   groupUrl?: string;

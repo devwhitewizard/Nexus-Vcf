@@ -32,7 +32,7 @@ export async function fetchDirectoryStatus(): Promise<DirectoryStatusData> {
   };
 }
 
-const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt?s=sh&p=a&ilr=0';
+const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt';
 
 function sanitizeGroupUrl(rawUrl?: string): string {
   if (!rawUrl || !rawUrl.trim()) return DEFAULT_GROUP_URL;
