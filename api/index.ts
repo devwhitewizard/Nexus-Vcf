@@ -140,12 +140,14 @@ function sanitizeGroupUrl(url?: string): string {
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
         trimmed = `https://${trimmed}`;
     }
-    if (trimmed.includes('vercel.app')) return DEFAULT_WHATSAPP_GROUP;
+    if (trimmed.includes('vercel.app') || trimmed.includes('CtjtkaQ1zCw4atCHSiFBQwhtt') || trimmed.includes('Jk88X19Kls92K109s8')) {
+        return DEFAULT_WHATSAPP_GROUP;
+    }
     return trimmed;
 }
 
 let siteConfig = {
-    groupUrl: sanitizeGroupUrl(process.env.PUBLIC_GROUP_URL),
+    groupUrl: DEFAULT_WHATSAPP_GROUP,
     adminName: process.env.PUBLIC_ADMIN_NAME || 'Nexus Support Team',
     adminPhone: process.env.PUBLIC_ADMIN_PHONE || '+254707848992',
     adminPhone2: process.env.PUBLIC_ADMIN_PHONE2 || '+254794171080',
@@ -163,11 +165,25 @@ async function fetchSystemConfigDB() {
             .maybeSingle();
 
         if (!error && data) {
+            let dbGroupUrl = data.group_url ? data.group_url.trim() : '';
+
+            // If Supabase DB row contains old link or vercel link, overwrite it permanently with new link
+            if (!dbGroupUrl || dbGroupUrl.includes('CtjtkaQ1zCw4atCHSiFBQwhtt') || dbGroupUrl.includes('Jk88X19Kls92K109s8') || dbGroupUrl.includes('vercel.app')) {
+                dbGroupUrl = DEFAULT_WHATSAPP_GROUP;
+                try {
+                    await supabase.from('system_config').upsert({
+                        id: 'default',
+                        group_url: DEFAULT_WHATSAPP_GROUP,
+                        updated_at: new Date().toISOString(),
+                    });
+                } catch (_) {}
+            }
+
             const clean1 = (data.admin_phone || siteConfig.adminPhone).replace(/[^0-9]/g, '');
             const clean2 = (data.admin_phone2 || siteConfig.adminPhone2).replace(/[^0-9]/g, '');
 
             siteConfig = {
-                groupUrl: sanitizeGroupUrl(data.group_url || siteConfig.groupUrl),
+                groupUrl: sanitizeGroupUrl(dbGroupUrl),
                 adminName: data.admin_name || siteConfig.adminName,
                 adminPhone: data.admin_phone || siteConfig.adminPhone,
                 adminPhone2: data.admin_phone2 || siteConfig.adminPhone2,

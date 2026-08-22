@@ -37,9 +37,11 @@ const DEFAULT_GROUP_URL = 'https://chat.whatsapp.com/DCsD3lqaanU7vPJ3qMDq14?s=cl
 function sanitizeGroupUrl(rawUrl?: string): string {
   if (!rawUrl || !rawUrl.trim()) return DEFAULT_GROUP_URL;
   let trimmed = rawUrl.trim();
-  if (trimmed.includes('vercel.app')) return DEFAULT_GROUP_URL;
   if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
     trimmed = `https://${trimmed}`;
+  }
+  if (trimmed.includes('vercel.app') || trimmed.includes('CtjtkaQ1zCw4atCHSiFBQwhtt') || trimmed.includes('Jk88X19Kls92K109s8')) {
+    return DEFAULT_GROUP_URL;
   }
   return trimmed;
 }
