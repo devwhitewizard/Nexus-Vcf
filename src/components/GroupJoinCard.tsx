@@ -12,9 +12,11 @@ export const GroupJoinCard: React.FC<GroupJoinCardProps> = ({ groupUrl }) => {
   const getFormattedUrl = (rawUrl?: string): string => {
     if (!rawUrl || !rawUrl.trim()) return DEFAULT_GROUP_URL;
     let trimmed = rawUrl.trim();
-    if (trimmed.includes('vercel.app')) return DEFAULT_GROUP_URL;
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
       trimmed = `https://${trimmed}`;
+    }
+    if (trimmed.includes('vercel.app') || (!trimmed.includes('chat.whatsapp.com') && !trimmed.includes('wa.me'))) {
+      return DEFAULT_GROUP_URL;
     }
     return trimmed;
   };
@@ -72,7 +74,7 @@ export const GroupJoinCard: React.FC<GroupJoinCardProps> = ({ groupUrl }) => {
 
             {/* Share Button */}
             <div className="flex items-center justify-center shrink-0">
-              <ShareButton />
+              <ShareButton groupUrl={finalUrl} />
             </div>
 
           </div>
