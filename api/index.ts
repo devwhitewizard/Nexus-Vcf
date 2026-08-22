@@ -132,7 +132,7 @@ async function fetchAllContactsDB() {
 // PUBLIC ENDPOINTS
 // -------------------------------------------------------------------
 
-const DEFAULT_WHATSAPP_GROUP = 'https://chat.whatsapp.com/CtjtkaQ1zCw4atCHSiFBQwhtt';
+const DEFAULT_WHATSAPP_GROUP = 'https://chat.whatsapp.com/DCsD3lqaanU7vPJ3qMDq14?s=cl&p=a&ilr=0';
 
 function sanitizeGroupUrl(url?: string): string {
     if (!url || !url.trim()) return DEFAULT_WHATSAPP_GROUP;
